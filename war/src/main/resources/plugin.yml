@@ -316,3 +316,9 @@ commands:
     usage: /<command> requiredparam
   startround:
     usage: /<command> requiredparam
+  createtourney:
+    usage: /<command> requiredparam
+  establishtourneys:
+    usage: /<command>
+  party:
+    usage: /<command>

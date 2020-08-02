@@ -33,7 +33,8 @@ public class TournamentWarzone extends Warzone {
 
     }
     public TournamentWarzone(Warzone warzone) {
-        super(warzone.getWorld(), warzone.getName());
+        super(warzone.getWorld(),
+                warzone.getName());
         this.setVolume(warzone.getVolume());
 
     }
@@ -72,6 +73,10 @@ public Team autoAssign(Player p){
     this.tryCallDelayedPlayers();
     Bukkit.getPluginManager().callEvent(new WarPlayerJoinEvent(player, team));
     return true;
+
+}
+public Warzone getWarzone(){
+        return this.warzone;
 
 }
 public void TournamentSpawnPlayer(Team team, Player player){
@@ -119,6 +124,7 @@ public void TournamentSpawnPlayer(Team team, Player player){
                     new Object[] {potionEffect, this.getName()});
         }
     }
+
     this.addtoRespawn(player);
     Volume volume= team.getSpawnVolumes().get(team.getRandomSpawn());
     for(int y=volume.getMaxY(); y<=4; y++){
