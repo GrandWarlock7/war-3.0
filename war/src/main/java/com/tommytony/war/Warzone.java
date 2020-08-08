@@ -215,6 +215,16 @@ public class Warzone implements Serializable, Listener {
 		}
 		return null;
 	}
+	public Team getNonPlayerEntityTeam(Entity e){
+		for (Team team : this.teams) {
+			for (Entity entity : team.getNonPlayerEntities()) {
+				if (entity.getEntityId()==e.getEntityId()) {
+					return team;
+				}
+			}
+		}
+		return null;
+	}
 	public void putinAttachments(Player p, PermissionAttachment pa){
 		this.attachments.put(p, pa);
 	}
@@ -1408,7 +1418,7 @@ if(this.getPlayerCount()==0){
 	this.processfinished=false;
 }
 		this.getVolume().resetBlocksAsJob();
-
+		this.getVolume().removeAllNonPlayerEntities();
 	}
 
 	public void handlePlayerLeave(Player player, Location destination, PlayerMoveEvent event, boolean removeFromTeam) {

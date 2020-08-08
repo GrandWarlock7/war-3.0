@@ -10,6 +10,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.tommytony.war.War;
@@ -225,7 +228,23 @@ public class Volume {
 			}
 		}
 	}
-
+	public void removeAllNonPlayerEntities(){
+		for(Entity e:this.getNonPlayerEntities()){
+			e.remove();
+		}
+	}
+public ArrayList<Entity> getNonPlayerEntities(){
+	ArrayList<Entity> returnvalue=new ArrayList<Entity>();
+	Entity ent=this.getWorld().spawnEntity(new Location(this.getWorld(),this.getMinX(), this.getMinY(), this.getMinZ()), EntityType
+			.ARMOR_STAND);
+	for(Entity e:ent.getNearbyEntities(this.getSizeX(), this.getSizeY(),this.getSizeZ())){
+		if(!(e instanceof Player)){
+			returnvalue.add(e);
+		}
+	}
+	ent.remove();
+	return returnvalue;
+}
 	public void setFaceMaterial(BlockFace face, ItemStack faceBlock) {
 		Validate.isTrue(this.hasTwoCorners(), "Incomplete volume");
 		for (int x = this.getMinX(); x <= this.getMaxX(); x++) {

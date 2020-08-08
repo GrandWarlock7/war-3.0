@@ -202,6 +202,8 @@ public class WarEntityListener implements Listener {
 			// Detect death, prevent it and respawn the player
 			Player d = (Player) defender;
 			Warzone defenderWarzone = Warzone.getZoneByPlayerName(d.getName());
+			Team team=Team.getTeamByPlayerName(d.getName());
+			if(team.getNonPlayerEntities().contains(event.getDamager())){event.setCancelled(true); return;}
 			if (d != null && defenderWarzone != null) {
 				LoadoutSelection defenderLoadoutState = defenderWarzone.getLoadoutSelections().get(d.getName());
 				if (defenderLoadoutState != null && defenderLoadoutState.isStillInSpawn()) {
@@ -227,13 +229,86 @@ public class WarEntityListener implements Listener {
 					defenderWarzone.handleNaturalKill(d, event);
 				}
 			}
+		}else if (attacker instanceof Player){
+			Player a = (Player) attacker;
+			Entity d =  defender;
+			Warzone attackerWarzone = Warzone.getZoneByPlayerName(a.getName());
+			Team attackerTeam = Team.getTeamByPlayerName(a.getName());
+			Warzone defenderWarzone = Warzone.getZoneByPlayerName(d.getName());
+			Team defenderTeam = Team.getNonPlayerEntityTeam(d);
+
+			if ((attackerTeam != null && defenderTeam != null && attackerTeam != defenderTeam && attackerWarzone == defenderWarzone)
+					|| (attackerTeam != null && defenderTeam != null && attacker.getEntityId() == defender.getEntityId())) {
+
+				LoadoutSelection defenderLoadoutState = defenderWarzone.getLoadoutSelections().get(d.getName());
+				if (defenderLoadoutState != null && defenderLoadoutState.isStillInSpawn()) {
+					War.war.badMsg(a, "pvp.target.spawn");
+					event.setCancelled(true);
+					return;
+				}
+
+				LoadoutSelection attackerLoadoutState = attackerWarzone.getLoadoutSelections().get(a.getName());
+				if (attackerLoadoutState != null && attackerLoadoutState.isStillInSpawn()) {
+					War.war.badMsg(a, "pvp.self.spawn");
+					event.setCancelled(true);
+					return;
+				}
+
+				// Make sure none of them are locked in by respawn timer
+
+
+				if(!defenderWarzone.getPvpReady()) {
+					//if the timer is still tickin we gotta handle defense! (there be notchz in virgina)
+					event.setCancelled(true);
+					return;
+				}
+
+				if (!attackerWarzone.getWarzoneConfig().getBoolean(WarzoneConfig.PVPINZONE)) {
+					// spleef-like, non-pvp, zone
+					event.setCancelled(true);
+					return;
+				}
+
+				// Detect death, prevent it and respawn the player
+
+			} else if (attackerTeam != null && defenderTeam != null && attackerTeam == defenderTeam && attackerWarzone == defenderWarzone && attacker.getEntityId() != defender.getEntityId()) {
+				// same team, but not same person
+				if (attackerWarzone.getWarzoneConfig().getBoolean(WarzoneConfig.FRIENDLYFIRE)) {
+					War.war.badMsg(a, "pvp.ff.enabled"); // if ff is on, let the attack go through
+				} else {
+					War.war.badMsg(a, "pvp.ff.disabled");
+					event.setCancelled(true); // ff is off
+				}
+			} else if (attackerTeam == null && defenderTeam == null && War.war.canPvpOutsideZones(a)) {
+				// let normal PVP through is its not turned off or if you have perms
+			} else if (attackerTeam == null && defenderTeam == null && !War.war.canPvpOutsideZones(a)) {
+				if (!War.war.getWarConfig().getBoolean(WarConfig.DISABLEPVPMESSAGE)) {
+					War.war.badMsg(a, "pvp.outside.permission");
+				}
+
+				event.setCancelled(true); // global pvp is off
+			} else {
+				if (attackerTeam == null) {
+					War.war.badMsg(a, "pvp.self.notplaying");
+				} else if (defenderTeam == null) {
+					War.war.badMsg(a, "pvp.target.notplaying");
+				} else if (attacker != null && defender != null && attacker.getEntityId() == defender.getEntityId()) {
+					// You just hit yourself, probably with a bouncing arrow
+				} else if (attackerTeam == defenderTeam) {
+					War.war.badMsg(a, "pvp.ff.disabled");
+				} else if (attackerWarzone != defenderWarzone) {
+					War.war.badMsg(a, "pvp.target.otherzone");
+				}
+
+				event.setCancelled(true); // can't attack someone inside a warzone if you're not in a team
+			}
 		}
 	}
 
 	/**
 	 * Protects important structures from explosions
 	 *
-	 * @see EntityListener.onEntityExplode()
+	 * @see
 	 */
 	@EventHandler
 	public void onEntityExplode(final EntityExplodeEvent event) {
@@ -311,7 +386,7 @@ public class WarEntityListener implements Listener {
 	/**
 	 * Handles damage on Players
 	 *
-	 * @see EntityListener.onEntityDamage()
+	 * @see
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityDamage(final EntityDamageEvent event) {
@@ -372,7 +447,7 @@ public class WarEntityListener implements Listener {
 	/**
 	 * Prevents creatures from spawning in warzones if no creatures is active
 	 *
-	 * @see EntityListener.onCreatureSpawn()
+	 * @see
 	 */
 	@EventHandler
 	public void onCreatureSpawn(final CreatureSpawnEvent event) {
@@ -390,7 +465,7 @@ public class WarEntityListener implements Listener {
 	/**
 	 * Prevents health regaining caused by peaceful mode
 	 *
-	 * @see EntityListener.onEntityRegainHealth()
+	 * @see
 	 */
 	@EventHandler
 	public void onEntityRegainHealth(final EntityRegainHealthEvent event) {

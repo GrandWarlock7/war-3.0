@@ -13,6 +13,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Sign;
@@ -45,6 +46,7 @@ public class Team implements Serializable, Cloneable {
 	private TeamConfigBag teamConfig;
 	private InventoryBag inventories;
 	private TournamentTeam team;
+	private List<Entity> npes=new ArrayList<Entity>();
 	public void setTournamentTeam(TournamentTeam t){
 		this.team=t;
 	}
@@ -74,6 +76,15 @@ public class Team implements Serializable, Cloneable {
 	public static Team getTeamByPlayerName(String playerName) {
 		for (Warzone warzone : War.war.getWarzones()) {
 			Team team = warzone.getPlayerTeam(playerName);
+			if (team != null) {
+				return team;
+			}
+		}
+		return null;
+	}
+	public static Team getNonPlayerEntityTeam(Entity e){
+		for (Warzone warzone : War.war.getWarzones()) {
+			Team team = warzone.getNonPlayerEntityTeam(e);
 			if (team != null) {
 				return team;
 			}
@@ -393,11 +404,14 @@ public class Team implements Serializable, Cloneable {
 			player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(4.0);
 		}
 	}
+	public void addNonPlayerEntity(Entity e){
+		this.npes.add(e);
+	}
 
 	public List<Player> getPlayers() {
 		return this.players;
 	}
-	
+	public List<Entity> getNonPlayerEntities(){return this.npes;}
 	public void teamcast(String message) {
 		// by default a teamcast is a notification
 		teamcast(message, true);
@@ -453,6 +467,9 @@ public class Team implements Serializable, Cloneable {
 		this.warzone.getLoadoutSelections().remove(thePlayer);
 		warzone.updateScoreboard();
 		thePlayer.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(4.0);
+	}
+	public void removeNonPlayerEntity(Entity e){
+		this.npes.remove(e);
 	}
 
 	public int getRemainingLives() {
