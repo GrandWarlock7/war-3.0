@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true" inheritJdk="true">
-	<output-test url="file://$USER_HOME$/Desktop/test/war-3.0-develop"/>
-	<exclude-output/>
-	<contentEntry url="file://$MODULE_DIR$"/>
-	<lib name="spigot-1.15.2-R0.1-SNAPSHOT.jar" scope="COMPILE">
-		<srcroot url="jar://$USER_HOME$/Desktop/ServerCTF/spigot-1.15.2-R0.1-SNAPSHOT.jar!/"/>
-	</lib>
-</component>
